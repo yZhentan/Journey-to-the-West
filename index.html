@@ -1,0 +1,1840 @@
+<!-- Copyright (c) 2022 zhangsuiyu@cuz.edu.cn. All rights reserved. -->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="Zsy.js"></script>
+    <script type="text/javascript" src="echarts.min.js"></script>
+    <style>
+        /* 深色基底 + 背景图片 */
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow-x: hidden;
+            /* 固定背景图片 - 视差效果 */
+            background-image: url('https://picx.zhimg.com/v2-aff5897b8a4aa2bcc8b9d746c2a388f9_r.jpg?source=2c26e567');
+            background-size: 110% 110%;
+            background-position: center center;
+            background-attachment: scroll;
+            animation: parallaxMove 25s ease-in-out infinite alternate,
+                       breathSize 4s ease-in-out infinite alternate;
+        }
+        
+        /* 背景尺寸呼吸效果 */
+        @keyframes breathSize {
+            0% {
+                background-size: 110% 110%;
+            }
+            50% {
+                background-size: 113% 113%;
+            }
+            100% {
+                background-size: 110% 110%;
+            }
+        }
+        
+        /* 视差移动效果 - 增强幅度 */
+        @keyframes parallaxMove {
+            0% {
+                background-position: 45% 55%;
+            }
+            33% {
+                background-position: 55% 45%;
+            }
+            66% {
+                background-position: 43% 57%;
+            }
+            100% {
+                background-position: 57% 43%;
+            }
+        }
+        
+        /* 动态渐变遮罩层 - 增强火焰感 */
+        body::after {
+            content: '';
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: linear-gradient(120deg, 
+                rgba(45, 27, 22, 0.7), 
+                rgba(58, 34, 25, 0.7), 
+                rgba(38, 22, 17, 0.7), 
+                rgba(49, 29, 23, 0.7)
+            );
+            background-size: 500% 500%;
+            animation: xiyoujiGradient 18s ease infinite alternate;
+        }
+        
+        /* 动态光效层 */
+        body::before {
+            content: '';
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1;
+            pointer-events: none;
+            background: linear-gradient(
+                60deg,
+                transparent,
+                rgba(255, 193, 7, 0.06),
+                transparent,
+                rgba(230, 100, 30, 0.04),
+                transparent
+            );
+            background-size: 400% 400%;
+            animation: lightFlow 15s ease infinite;
+        }
+
+        /* 渐变网格层 */
+        html::before {
+            content: '';
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                radial-gradient(rgba(255, 193, 7, 0.08) 1px, transparent 1px),
+                radial-gradient(rgba(255, 193, 7, 0.08) 1px, transparent 1px);
+            background-size: 60px 60px, 60px 60px;
+            background-position: 0 0, 30px 30px;
+            opacity: 0.5;
+        }
+
+        /* 祥云粒子效果 */
+        html::after {
+            content: '';
+            position: fixed;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="2.2" fill="%23ffd700" opacity="0.25"/><circle cx="30" cy="30" r="1.5" fill="%23ffc107" opacity="0.22"/><circle cx="60" cy="40" r="1.7" fill="%23ffd700" opacity="0.23"/><circle cx="80" cy="80" r="2.5" fill="%23ffc107" opacity="0.26"/><circle cx="30" cy="70" r="1.5" fill="%23ffd700" opacity="0.24"/><circle cx="90" cy="20" r="1.9" fill="%23ffc107" opacity="0.25"/><circle cx="50" cy="90" r="1.8" fill="%23ffd700" opacity="0.27"/><circle cx="20" cy="50" r="1.3" fill="%23ffc107" opacity="0.21"/><circle cx="70" cy="30" r="1.6" fill="%23ffd700" opacity="0.23"/><circle cx="40" cy="60" r="1.2" fill="%23ffc107" opacity="0.20"/><circle cx="55" cy="15" r="1.4" fill="%23ffd700" opacity="0.24"/><circle cx="75" cy="65" r="1.6" fill="%23ffd700" opacity="0.23"/><circle cx="25" cy="25" r="1.8" fill="%23ffc107" opacity="0.25"/><circle cx="85" cy="50" r="1.3" fill="%23ffd700" opacity="0.22"/><circle cx="45" cy="35" r="1.5" fill="%23ffc107" opacity="0.23"/></svg>');
+            background-size: 80px 80px;
+            opacity: 0.4;
+            animation: cloudParticle 40s linear infinite alternate;
+        }
+
+        /* 佛光流动光效 */
+        #container::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            pointer-events: none;
+            background: linear-gradient(60deg,
+                    transparent,
+                    rgba(255, 193, 7, 0.08),
+                    transparent,
+                    rgba(230, 100, 30, 0.06),
+                    transparent);
+            background-size: 400% 400%;
+            animation: lightFlow 15s ease infinite;
+        }
+
+        /* 容器样式 */
+        #container {
+            position: relative;
+            z-index: 1;
+            width: 90%;
+            height: 85vh;
+            margin: 20px auto;
+            padding: 12px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: linear-gradient(120deg, rgba(45, 27, 22, 0.85), rgba(58, 34, 25, 0.85), rgba(38, 22, 17, 0.85));
+            background-size: 500% 500%;
+            animation: xiyoujiGradient 18s ease infinite alternate,
+                borderPulse 4s ease-in-out infinite;
+            border: 2px solid #d64933;
+            box-shadow: 0 0 40px rgba(255, 152, 0, 0.25),
+                inset 0 0 30px rgba(255, 193, 7, 0.15),
+                0 0 20px rgba(230, 100, 30, 0.2) inset;
+        }
+
+        /* 容器内部粒子 */
+        #container::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+            pointer-events: none;
+            background: url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="2.2" fill="%23d64933" opacity="0.18"/><circle cx="30" cy="30" r="1.5" fill="%23e55347" opacity="0.15"/><circle cx="60" cy="40" r="1.7" fill="%23d64933" opacity="0.16"/><circle cx="80" cy="80" r="2.5" fill="%23e55347" opacity="0.20"/><circle cx="30" cy="70" r="1.5" fill="%23d64933" opacity="0.18"/><circle cx="90" cy="20" r="1.9" fill="%23e55347" opacity="0.17"/><circle cx="50" cy="90" r="1.8" fill="%23d64933" opacity="0.20"/><circle cx="20" cy="50" r="1.3" fill="%23e55347" opacity="0.14"/><circle cx="70" cy="30" r="1.6" fill="%23d64933" opacity="0.16"/><circle cx="40" cy="60" r="1.2" fill="%23e55347" opacity="0.13"/><circle cx="55" cy="15" r="1.4" fill="%23d64933" opacity="0.18"/><circle cx="75" cy="65" r="1.6" fill="%23d64933" opacity="0.16"/><circle cx="25" cy="25" r="1.8" fill="%23e55347" opacity="0.17"/><circle cx="85" cy="50" r="1.3" fill="%23d64933" opacity="0.15"/><circle cx="45" cy="35" r="1.5" fill="%23e55347" opacity="0.16"/></svg>');
+            background-size: 80px 80px;
+            opacity: 0.4;
+            animation: cloudParticleReverse 45s linear infinite alternate;
+        }
+
+        #container>* {
+            position: relative;
+            z-index: 3;
+        }
+
+        /* 背景渐变动画 */
+        @keyframes xiyoujiGradient {
+            0% {
+                background-position: 0% 40%;
+            }
+
+            50% {
+                background-position: 100% 60%;
+            }
+
+            100% {
+                background-position: 0% 40%;
+            }
+        }
+
+        /* 祥云粒子动画 */
+        @keyframes cloudParticle {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 400px 400px;
+            }
+        }
+
+        @keyframes cloudParticleReverse {
+            0% {
+                background-position: 400px 400px;
+            }
+
+            100% {
+                background-position: 0 0;
+            }
+        }
+
+        /* 佛光流动动画 */
+        @keyframes lightFlow {
+            0% {
+                background-position: 0% 0%;
+            }
+
+            50% {
+                background-position: 100% 100%;
+            }
+
+            100% {
+                background-position: 0% 0%;
+            }
+        }
+
+        /* 边框呼吸动画 */
+        @keyframes borderPulse {
+            0% {
+                border-color: #d64933;
+                box-shadow: 0 0 30px rgba(255, 152, 0, 0.2),
+                    inset 0 0 20px rgba(255, 193, 7, 0.1),
+                    0 0 15px rgba(230, 100, 30, 0.15) inset;
+            }
+
+            50% {
+                border-color: #e55347;
+                box-shadow: 0 0 50px rgba(255, 152, 0, 0.35),
+                    inset 0 0 30px rgba(255, 193, 7, 0.2),
+                    0 0 25px rgba(230, 100, 30, 0.25) inset;
+            }
+
+            100% {
+                border-color: #d64933;
+            }
+        }
+
+        /* 筛选面板样式 */
+        .filter-panel {
+            margin: 15px auto;
+            padding: 12px;
+            width: 90%;
+            border: 2px solid #d64933;
+            border-radius: 8px;
+            background: linear-gradient(120deg, rgba(45, 27, 22, 0.85), rgba(58, 34, 25, 0.85), rgba(38, 22, 17, 0.85));
+            background-size: 500% 500%;
+            animation: xiyoujiGradient 18s ease infinite alternate,
+                       panelBreathe 6s ease infinite;
+            color: #fff;
+            font-family: '"楷体", "KaiTi", serif';
+            box-shadow: 0 0 40px rgba(255, 152, 0, 0.25),
+                        inset 0 0 30px rgba(255, 193, 7, 0.15),
+                        0 0 20px rgba(230, 100, 30, 0.2) inset;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes panelBreathe {
+            0% {
+                border-color: #d64933;
+                box-shadow: 0 0 30px rgba(255, 152, 0, 0.2),
+                            inset 0 0 20px rgba(255, 193, 7, 0.1),
+                            0 0 15px rgba(230, 100, 30, 0.15) inset;
+            }
+
+            50% {
+                border-color: #e55347;
+                box-shadow: 0 0 50px rgba(255, 152, 0, 0.35),
+                            inset 0 0 30px rgba(255, 193, 7, 0.2),
+                            0 0 25px rgba(230, 100, 30, 0.25) inset;
+            }
+
+            100% {
+                border-color: #d64933;
+                box-shadow: 0 0 30px rgba(255, 152, 0, 0.2),
+                            inset 0 0 20px rgba(255, 193, 7, 0.1),
+                            0 0 15px rgba(230, 100, 30, 0.15) inset;
+            }
+        }
+
+        .filter-panel label {
+            margin-right: 15px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .filter-panel label:hover {
+            color: #ffc107;
+        }
+
+        .filter-panel input[type="checkbox"] {
+            margin-right: 4px;
+            accent-color: #ffc107;
+        }
+
+        /* 筛选按钮样式 */
+        #filterBtn {
+            padding: 5px 14px;
+            cursor: pointer;
+            background: #d64933;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-family: '"楷体", "KaiTi", serif';
+            box-shadow: 0 2px 6px rgba(255, 152, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        #filterBtn:hover {
+            background: #e55347;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.6);
+        }
+
+        /* 透明度滑块样式 */
+        .opacity-control {
+            display: inline-block;
+            margin-left: 30px;
+            vertical-align: middle;
+        }
+
+        .opacity-control label {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        .opacity-slider {
+            width: 150px;
+            height: 6px;
+            background: linear-gradient(90deg, rgba(255, 193, 7, 0.3), rgba(255, 193, 7, 0.8));
+            border-radius: 3px;
+            outline: none;
+            vertical-align: middle;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .opacity-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #ffc107;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 6px rgba(255, 193, 7, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .opacity-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.9);
+        }
+
+        .opacity-slider::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #ffc107;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 6px rgba(255, 193, 7, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .opacity-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.9);
+        }
+
+        .opacity-value {
+            display: inline-block;
+            min-width: 35px;
+            margin-left: 8px;
+            font-size: 13px;
+            color: #ffc107;
+        }
+
+        /* 音乐控制按钮 */
+        .music-control {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 9999;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(214, 73, 51, 0.9), rgba(229, 83, 71, 0.9));
+            border: 2px solid #ffc107;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4),
+                        inset 0 0 15px rgba(255, 193, 7, 0.2);
+            transition: all 0.3s ease;
+            animation: musicPulse 2s ease-in-out infinite;
+        }
+
+        .music-control:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 152, 0, 0.6),
+                        inset 0 0 20px rgba(255, 193, 7, 0.3);
+        }
+
+        .music-control svg {
+            width: 28px;
+            height: 28px;
+            fill: #fff;
+            filter: drop-shadow(0 0 3px rgba(255, 193, 7, 0.5));
+        }
+
+        .music-control.muted {
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.9), rgba(120, 120, 120, 0.9));
+            animation: none;
+        }
+
+        @keyframes musicPulse {
+            0%, 100% {
+                box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4),
+                            inset 0 0 15px rgba(255, 193, 7, 0.2);
+            }
+            50% {
+                box-shadow: 0 6px 20px rgba(255, 152, 0, 0.6),
+                            inset 0 0 20px rgba(255, 193, 7, 0.3);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop>
+        <source src="music.mp3" type="audio/mpeg">
+        <source src="music.ogg" type="audio/ogg">
+        您的浏览器不支持音频播放。
+    </audio>
+
+    <!-- 音乐控制按钮 -->
+    <div class="music-control" id="musicControl" title="点击可播放/暂停音乐">
+        <svg id="musicIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+        </svg>
+    </div>
+
+    <!-- 筛选控件 -->
+    <div class="filter-panel">
+        关系类型筛选：
+        <label style="font-weight: bold; margin-right: 20px;">
+            <input type="checkbox" id="selectAll" checked> 全选
+        </label>
+        <label><input type="checkbox" class="relation-checkbox" value="仆人" checked> 仆人</label>
+        <label><input type="checkbox" class="relation-checkbox" value="坐骑" checked> 坐骑</label>
+        <label><input type="checkbox" class="relation-checkbox" value="父亲" checked> 父亲</label>
+        <label><input type="checkbox" class="relation-checkbox" value="母亲" checked> 母亲</label>
+        <label><input type="checkbox" class="relation-checkbox" value="妻" checked> 妻</label>
+        <label><input type="checkbox" class="relation-checkbox" value="夫" checked> 夫</label>
+        <label><input type="checkbox" class="relation-checkbox" value="妾" checked> 妾</label>
+        <label><input type="checkbox" class="relation-checkbox" value="儿" checked> 儿</label>
+        <label><input type="checkbox" class="relation-checkbox" value="兄" checked> 兄</label>
+        <label><input type="checkbox" class="relation-checkbox" value="弟" checked> 弟</label>
+        <label><input type="checkbox" class="relation-checkbox" value="姐姐" checked> 姐姐</label>
+        <label><input type="checkbox" class="relation-checkbox" value="妹妹" checked> 妹妹</label>
+        <label><input type="checkbox" class="relation-checkbox" value="叔" checked> 叔</label>
+        <label><input type="checkbox" class="relation-checkbox" value="舅" checked> 舅</label>
+        <label><input type="checkbox" class="relation-checkbox" value="师傅" checked> 师傅</label>
+        <label><input type="checkbox" class="relation-checkbox" value="师父" checked> 师父</label>
+        <label><input type="checkbox" class="relation-checkbox" value="徒弟" checked> 徒弟</label>
+        <label><input type="checkbox" class="relation-checkbox" value="师兄" checked> 师兄</label>
+        <label><input type="checkbox" class="relation-checkbox" value="师弟" checked> 师弟</label>
+        <label><input type="checkbox" class="relation-checkbox" value="前世" checked> 前世</label>
+        <label><input type="checkbox" class="relation-checkbox" value="义兄" checked> 义兄</label>
+        <label><input type="checkbox" class="relation-checkbox" value="臣" checked> 臣</label>
+        <button id="filterBtn">执行筛选</button>
+        
+        <div class="opacity-control">
+            <label title="滑动至0%并双击触发彩蛋">背景深浅：</label>
+            <input type="range" id="opacitySlider" class="opacity-slider" min="0" max="100" value="85" step="1" title="滑动至0%并双击触发彩蛋">
+            <span class="opacity-value" id="opacityValue">85%</span>
+        </div>
+    </div>
+
+
+    <!-- 分组过滤控件（右侧内嵌无边框） -->
+    <div id="group-filter-panel" style="
+        position: absolute;
+        top: 50%;
+        right: 120px;
+        transform: translateY(-50%);
+        width: 120px;
+        z-index: 10;
+        background: transparent;
+        border: none;
+        border-radius: 0 12px 12px 0;
+        box-shadow: none;
+        padding: 18px 10px 18px 10px;
+        font-family: '楷体', 'KaiTi', serif;
+        color: #fff;
+        user-select: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+    ">
+        <div id="group-list" style="width:100%; display:flex; flex-direction:column; gap:22px; align-items:flex-start;">
+            <!-- 动态生成分组色块和文字 -->
+        </div>
+    </div>
+
+    <div id="container"></div>
+    <script type="text/javascript">
+    // 分组过滤功能
+    const groupColors = {
+        '凡人': '#1e88e5',
+        '取经人': '#43a047',
+        '妖怪': '#ffb300',
+        '神仙': '#e53935'
+    };
+    let groupFilterState = {
+        '凡人': true,
+        '取经人': true,
+        '妖怪': true,
+        '神仙': true
+    };
+
+    function renderGroupFilterUI() {
+        const groupList = document.getElementById('group-list');
+        groupList.innerHTML = '';
+        const groupOrder = ['凡人', '取经人', '妖怪', '神仙'];
+        groupOrder.forEach(group => {
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.alignItems = 'center';
+            row.style.gap = '18px';
+            row.style.cursor = 'pointer';
+            row.setAttribute('data-group', group);
+            // 色块
+            const colorBox = document.createElement('div');
+            colorBox.style.width = '30px';
+            colorBox.style.height = '30px';
+            colorBox.style.borderRadius = '8px';
+            colorBox.style.background = groupFilterState[group] ? groupColors[group] : '#aaa';
+            colorBox.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+            colorBox.style.border = 'none';
+            colorBox.title = '点击可隐藏节点';
+            // 文字
+            const label = document.createElement('span');
+            label.textContent = group;
+            label.style.fontSize = '20px';
+            label.style.fontFamily = '"楷体", "KaiTi", serif';
+            label.style.color = '#fff';
+            label.style.letterSpacing = '2px';
+            label.style.whiteSpace = 'nowrap';
+            label.style.lineHeight = '32px';
+            // 取经团队特殊对齐
+            if (group === '取经人') {
+                label.style.display = 'inline-block';
+                label.style.verticalAlign = 'middle';
+            }
+            // 交互
+            row.addEventListener('mouseenter', function() {
+                highlightGroupNodes(group, true);
+                colorBox.style.boxShadow = `0 0 12px 2px ${groupColors[group]}`;
+            });
+            row.addEventListener('mouseleave', function() {
+                highlightGroupNodes(group, false);
+                colorBox.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+            });
+            row.addEventListener('click', function() {
+                groupFilterState[group] = !groupFilterState[group];
+                renderGroupFilterUI();
+                applyGroupFilter();
+            });
+            row.appendChild(colorBox);
+            row.appendChild(label);
+            groupList.appendChild(row);
+        });
+    }
+
+    // 记录当前关系筛选结果
+    let lastRelationFilter = null;
+
+    function getRelationFilterResult() {
+        // 获取当前关系筛选下的边，节点始终全部显示
+        var checkedRelations = Array.from(
+            document.querySelectorAll('.relation-checkbox:checked')
+        ).map(cb => cb.value);
+        // 节点不受关系筛选影响
+        const nodes = originCharacterData.slice();
+        let links = [];
+        if (checkedRelations.length > 0) {
+            links = originRelationData.filter(link => checkedRelations.includes(link.value));
+        }
+        return { nodes, links, empty: false };
+    }
+
+    function applyGroupFilter() {
+        // 先取关系筛选下的节点和边，再做分组过滤
+        let relResult = lastRelationFilter || getRelationFilterResult();
+        const enabledGroups = Object.keys(groupFilterState).filter(g => groupFilterState[g]);
+        const filteredNodes = relResult.nodes.filter(node => enabledGroups.includes(node.category));
+        const nodeNames = new Set(filteredNodes.map(n => n.name));
+        const filteredLinks = relResult.links.filter(link => nodeNames.has(link.source) && nodeNames.has(link.target));
+        currentFocus = null;
+        echartsRender(filteredNodes, filteredLinks);
+    }
+
+    function highlightGroupNodes(group, highlight) {
+        // 高亮/取消高亮某分组节点，孙悟空单独高亮色
+        const chartOption = myChart.getOption();
+        if (!chartOption || !chartOption.series || !chartOption.series[0]) return;
+        const nodes = chartOption.series[0].data;
+        // 线条处理
+        const chartLinks = chartOption.series[0].links;
+        nodes.forEach(node => {
+            const isCurrentGroup = (node.categoryName || node.category) === group;
+            node.itemStyle = node.itemStyle || {};
+            if (highlight) {
+                if (isCurrentGroup) {
+                    node.itemStyle.opacity = 1;
+                    // 孙悟空单独高亮色（金色），否则用分组色
+                    if (node.name === '孙悟空') {
+                        node.itemStyle.borderColor = '#FFB300'; // 金色
+                    } else {
+                        node.itemStyle.borderColor = groupColors[group];
+                    }
+                    node.itemStyle.borderWidth = 4;
+                    node.itemStyle.shadowBlur = 18;
+                } else {
+                    node.itemStyle.opacity = 0.15;
+                    node.itemStyle.borderColor = node.originalItemStyle ? node.originalItemStyle.borderColor : '#fff';
+                    node.itemStyle.borderWidth = node.originalItemStyle ? node.originalItemStyle.borderWidth : 1;
+                    node.itemStyle.shadowBlur = node.originalItemStyle ? node.originalItemStyle.shadowBlur : 6;
+                }
+            } else {
+                // 恢复所有节点
+                node.itemStyle.opacity = 0.85;
+                node.itemStyle.borderColor = node.originalItemStyle ? node.originalItemStyle.borderColor : '#fff';
+                node.itemStyle.borderWidth = node.originalItemStyle ? node.originalItemStyle.borderWidth : 1;
+                node.itemStyle.shadowBlur = node.originalItemStyle ? node.originalItemStyle.shadowBlur : 6;
+            }
+        });
+        // 线条高亮/暗淡
+        if (chartLinks) {
+            chartLinks.forEach(link => {
+                // 获取source/target节点
+                const sourceNode = nodes.find(n => n.name === (link.source.name || link.source));
+                const targetNode = nodes.find(n => n.name === (link.target.name || link.target));
+                const bothInGroup = sourceNode && targetNode &&
+                    ((sourceNode.categoryName || sourceNode.category) === group) &&
+                    ((targetNode.categoryName || targetNode.category) === group);
+                if (highlight) {
+                    if (bothInGroup) {
+                        link.lineStyle = link.lineStyle || {};
+                        link.lineStyle.opacity = 0.9;
+                        link.lineStyle.width = link.lineStyle.width || 4;
+                    } else {
+                        link.lineStyle = link.lineStyle || {};
+                        link.lineStyle.opacity = 0.08;
+                        link.lineStyle.width = 2;
+                    }
+                } else {
+                    // 恢复
+                    link.lineStyle = link.lineStyle || {};
+                    link.lineStyle.opacity = link.originalLineStyle && link.originalLineStyle.opacity !== undefined ? link.originalLineStyle.opacity : 0.8;
+                    link.lineStyle.width = link.originalLineStyle && link.originalLineStyle.width !== undefined ? link.originalLineStyle.width : 2;
+                }
+            });
+        }
+        myChart.setOption({ series: [{ data: nodes, links: chartLinks }] });
+    }
+
+    // 初始渲染UI
+    renderGroupFilterUI();
+
+    // 保证每次渲染后分组过滤UI同步
+    const oldEchartsRender = echartsRender;
+    echartsRender = function(nodes, links) {
+        oldEchartsRender(nodes, links);
+        setTimeout(renderGroupFilterUI, 0);
+    }
+    </script>
+
+    <script type="text/javascript">
+        let originCharacterData = [];
+        let originRelationData = [];
+        let currentFocus = null;
+        let originalOption = null;
+
+        // 拖拽摆动效果变量
+        let isDragging = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let velocityX = 0;
+        let velocityY = 0;
+        let swayNodes = [];
+
+        Z.readTextFile("triples.csv", function (data) {
+            var relationData = getRelationData(data);
+            var characterData = getCharacterData(relationData);
+            originCharacterData = JSON.parse(JSON.stringify(characterData));
+            originRelationData = JSON.parse(JSON.stringify(relationData));
+            echartsRender(characterData, relationData);
+            // 修正：数据加载后同步lastRelationFilter为全选，避免首次分组筛选丢失节点
+            lastRelationFilter = { nodes: originCharacterData.slice(), links: originRelationData.slice(), empty: false };
+        })
+
+        function getRelationData(result) {
+            var allLine = [];
+            var lines = result.replace(/["]/g, "").split('\r\n');
+            for (var i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                var line = lines[i].split(',');
+                var relationLabel = line[3];
+                if (relationLabel === '父') relationLabel = '父亲';
+                if (relationLabel === '母') relationLabel = '母亲';
+                var line_obj = {
+                    source: line[0],
+                    target: line[1],
+                    relation: line[2],
+                    value: relationLabel,
+                }
+                // 关系线配色：与角色分类色协调，增强可读性
+                if (['子', '女', '父亲', '母亲', '儿'].indexOf(relationLabel) > -1) {
+                    line_obj.lineStyle = { color: '#e53935', width: 4, opacity: 0.9 }; // 红色系（匹配神仙色）
+                } else if (['妻', '夫', '妾'].indexOf(relationLabel) > -1) {
+                    line_obj.lineStyle = { color: '#c62828', width: 4, opacity: 0.9 }; // 深红（强化婚恋关系）
+                } else {
+                    line_obj.lineStyle = { width: 2, opacity: 0.8, curveness: 0.1, color: '#ffb300' }; // 黄色系（匹配妖怪色）
+                }
+                allLine.push(line_obj);
+            }
+            return allLine;
+        }
+
+        function getCharacterData(r) {
+            var arr = [];
+            for (var i = 0; i < r.length; i++) {
+                arr.push(r[i].source);
+                arr.push(r[i].target);
+            }
+            var allCharacter = [];
+            var temp = [];
+            // 修正分类映射，确保与用户提供的分组名称一致
+            var categoryMap = Z.getCharacterCategory();
+            // 统一分类名称：将"取经"改为"取经人"，确保与图例匹配
+            Object.keys(categoryMap).forEach(key => {
+                if (categoryMap[key] === '取经') categoryMap[key] = '取经人';
+            });
+
+            for (var i = 0; i < arr.length; i++) {
+                if (!arr[i] || arr[i] === 'undefined') continue;
+                var index = temp.indexOf(arr[i]);
+                if (index == -1) {
+                    var cat = categoryMap[arr[i]] || '凡人';
+                    // 严格按照用户提供的分组颜色设置：凡人-蓝、取经团队-绿、妖怪-黄、神仙-红
+                    let itemStyle = {};
+                    if (cat === '神仙') {
+                        itemStyle = {
+                            color: '#e53935', // 红色（用户指定）
+                            borderColor: '#f44336',
+                            borderWidth: 1,
+                            shadowBlur: 6,
+                            shadowColor: 'rgba(244, 67, 54, 0.5)'
+                        };
+                    } else if (cat === '妖怪') {
+                        itemStyle = {
+                            color: '#ffb300', // 黄色（用户指定）
+                            borderColor: '#ffca28',
+                            borderWidth: 1,
+                            shadowBlur: 6,
+                            shadowColor: 'rgba(255, 202, 40, 0.5)'
+                        };
+                    } else if (cat === '取经人') {
+                        itemStyle = {
+                            color: '#43a047', // 绿色（用户指定）
+                            borderColor: '#66bb6a',
+                            borderWidth: 1,
+                            shadowBlur: 6,
+                            shadowColor: 'rgba(102, 187, 106, 0.5)'
+                        };
+                    } else { // 凡人
+                        itemStyle = {
+                            color: '#1e88e5', // 蓝色（用户指定）
+                            borderColor: '#42a5f5',
+                            borderWidth: 1,
+                            shadowBlur: 4,
+                            shadowColor: 'rgba(66, 165, 245, 0.4)'
+                        };
+                    }
+                    
+                    // 孙悟空特殊处理：齐天大圣，深金色
+                    if (arr[i] === '孙悟空') {
+                        itemStyle = {
+                            color: '#ffb300', // 深金色
+                            borderColor: '#ffb300',
+                            borderWidth: 3,
+                            shadowBlur: 15,
+                            shadowColor: 'rgba(212, 160, 23, 0.8)'
+                        };
+                    }
+                    
+                    allCharacter.push({
+                        name: arr[i],
+                        value: 1,
+                        category: cat,
+                        symbolSize: arr[i] === '孙悟空' ? 25 : 15,
+                        originalSymbolSize: arr[i] === '孙悟空' ? 25 : 15,
+                        originalItemStyle: JSON.parse(JSON.stringify(itemStyle)),
+                        itemStyle: itemStyle,
+                        label: arr[i] === '孙悟空' ? {
+                            show: true,
+                            fontSize: 14,
+                            fontWeight: 'bold',
+                            color: '#ffffff',
+                            textBorderColor: '#000000',
+                            textBorderWidth: 2,
+                            textShadowColor: '#000000',
+                            textShadowBlur: 5
+                        } : {
+                            show: false,
+                            fontSize: 12,
+                            color: '#fff',
+                            fontFamily: '"楷体", "KaiTi", "STKaiti", serif',
+                            fontWeight: '500',
+                            textShadow: '0 0 3px rgba(0,0,0,0.7)'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: 13,
+                                fontWeight: 'bold',
+                                color: '#fff',
+                                fontFamily: '"楷体", "KaiTi", serif',
+                                textShadow: '0 0 4px rgba(255, 193, 7, 0.5)'
+                            }
+                        }
+                    });
+                    temp.push(arr[i]);
+                } else {
+                    allCharacter[index].value += 1;
+                    allCharacter[index].symbolSize += 2;
+                    allCharacter[index].originalSymbolSize = allCharacter[index].symbolSize;
+                }
+            }
+            return allCharacter;
+        }
+
+        var dom = document.getElementById("container");
+        var myChart = echarts.init(dom, null, Z.smartWH());
+        var option = {};
+
+        function echartsRender(nodes, links) {
+            // 深拷贝节点数据，避免修改原始数据
+            var nodesClone = JSON.parse(JSON.stringify(nodes));
+            
+            var categorySet = {};
+            nodesClone.forEach(function (node) {
+                categorySet[node.category] = true;
+            });
+            // 生成图例分类，确保顺序与用户提供的分组一致
+            var categories = [
+                { name: '凡人' },
+                { name: '取经人' },
+                { name: '妖怪' },
+                { name: '神仙' }
+            ].filter(cat => categorySet[cat.name]); // 过滤掉无数据的分类
+
+            // 将节点的category从字符串转换为索引
+            nodesClone.forEach(function (node) {
+                const catName = node.category; // 保存原始分类名称
+                const catIndex = categories.findIndex(c => c.name === catName);
+                node.category = catIndex >= 0 ? catIndex : 0;
+                node.categoryName = catName; // 保存原始名称用于调试
+                
+                // 孙悟空特殊处理：保持其自定义label
+                if (node.name === '孙悟空') {
+                    node.originalLabel = JSON.parse(JSON.stringify(node.label));
+                } else {
+                    node.originalLabel = {
+                        show: node.value > 3,
+                        fontSize: node.value > 10 ? 14 : 12,
+                        color: '#fff',
+                        fontFamily: '"楷体", "KaiTi", "STKaiti", serif',
+                        overflow: 'truncate',
+                        fontWeight: '500',
+                        textShadow: '0 0 3px rgba(0,0,0,0.7)'
+                    };
+                    node.label = JSON.parse(JSON.stringify(node.originalLabel));
+                }
+
+                node.emphasis = {
+                    label: {
+                        show: true,
+                        fontSize: node.name === '孙悟空' ? 14 : 13,
+                        fontWeight: 'bold',
+                        color: '#fff',
+                        fontFamily: '"楷体", "KaiTi", serif',
+                        textShadow: '0 0 4px rgba(255, 193, 7, 0.5)'
+                    }
+                };
+            });
+
+            option = {
+                title: {
+                    text: '《西游记》人物关系图谱',
+                    subtext: '点击角色对焦，再次点击取消',
+                    left: '20px',
+                    top: '20px',
+                    textStyle: {
+                        color: '#fff',
+                        fontFamily: '"楷体", "KaiTi", serif',
+                        fontSize: 26,
+                        fontWeight: 'bold',
+                        textShadow: '0 0 8px rgba(255, 193, 7, 0.5)'
+                    },
+                    subtextStyle: {
+                        color: '#ffd700',
+                        fontFamily: '"楷体", "KaiTi", serif',
+                        fontSize: 14
+                    }
+                },
+                tooltip: {
+                    formatter: function (params) {
+                        // params.data.category can be 0 (falsy) for the first category (凡人),
+                        // so check for the existence of a name instead of truthiness of category.
+                        if (params.data && params.data.name) {
+                            var name = params.data.name;
+                            var rels = [];
+                            var allLinks = myChart.getOption().series[0].links;
+                            allLinks.forEach(function (link) {
+                                if (link.source === name) {
+                                    rels.push('→ ' + link.target + '（' + (link.value || '') + '）');
+                                } else if (link.target === name) {
+                                    rels.push('← ' + link.source + '（' + (link.value || '') + '）');
+                                }
+                            });
+                            
+                            // 分成两列显示关系
+                            var relHtml = '';
+                            if (rels.length > 0) {
+                                var midPoint = Math.ceil(rels.length / 2);
+                                var leftCol = rels.slice(0, midPoint);
+                                var rightCol = rels.slice(midPoint);
+                                
+                                relHtml = '<div style="margin-top: 8px;">关系：</div>';
+                                relHtml += '<div style="display: flex; gap: 20px;">';
+                                relHtml += '<div style="flex: 1;">' + leftCol.join('<br>') + '</div>';
+                                if (rightCol.length > 0) {
+                                    relHtml += '<div style="flex: 1;">' + rightCol.join('<br>') + '</div>';
+                                }
+                                relHtml += '</div>';
+                            }
+                            
+                            // 孙悟空显示特殊称号
+                            var displayName = name === '孙悟空' ? '齐天大圣孙悟空' : name;
+                            
+                            // 获取分类名称（从索引转换回名称）
+                            var categories = myChart.getOption().series[0].categories;
+                            var categoryName = params.data.categoryName || (categories[params.data.category] ? categories[params.data.category].name : '未知');
+                            
+                            return displayName + '<br>分类：' + categoryName + '<br>关系数：' + params.data.value + relHtml;
+                        }
+                    },
+                    backgroundColor: 'rgba(45, 27, 22, 0.95)',
+                    borderColor: '#ffc107',
+                    borderWidth: 1,
+                    confine: true,
+                    textStyle: {
+                        color: '#fff',
+                        fontFamily: '"楷体", "KaiTi", serif',
+                        fontSize: 16,
+                    },
+                    extraCssText: 'min-width: 320px; max-width: 550px; max-height: 600px; z-index: 99999 !important; padding: 12px 16px; line-height: 1.8;'
+                },
+                series: [
+                    {
+                        type: 'graph',
+                        layout: 'force',
+                        data: nodesClone,
+                        links: links,
+                        categories: categories, // 关联分类，确保图例颜色匹配
+                        roam: true,
+                        label: { position: 'inside' },
+                        lineStyle: {
+                            width: 2,
+                            opacity: 0.8,
+                            curveness: 0.1,
+                            color: '#ffb300'
+                        },
+                        emphasis: {
+                            focus: 'adjacency',
+                            label: {
+                                show: true
+                            },
+                            lineStyle: {
+                                width: 8,
+                                color: '#ffc107',
+                                opacity: 1
+                            }
+                        },
+                        edgeLabel: {
+                            show: false,
+                            position: "middle",
+                            fontSize: 12,
+                            formatter: '{c}',
+                            color: '#fff',
+                            fontFamily: '"楷体", "KaiTi", serif',
+                            emphasis: { show: true }
+                        },
+                        force: {
+                            repulsion: 250,
+                            gravity: 0.25,
+                            edgeLength: 90,
+                            animationDuration: 2200,
+                            animationEasingUpdate: 'quinticInOut',
+                            layoutAnimation: true,
+                            friction: 0.4
+                        }
+                    }
+                ]
+            };
+
+            myChart.setOption(option);
+            originalOption = JSON.parse(JSON.stringify(option));
+            bindFocusEvent();
+            bindDragSwayEffect();
+        }
+
+        
+
+        // 拖拽摆动效果
+        function bindDragSwayEffect() {
+            const chartDom = dom;
+            let animationFrame = null;
+            let baseRepulsion = 100;
+            let baseGravity = 0.25;
+            let isNodeDragging = false;
+            let draggedNodeName = null;
+
+            // 监听节点拖动事件
+            myChart.on('mousedown', function (params) {
+                if (params.componentType === 'series' && params.data && params.data.name) {
+                    isNodeDragging = true;
+                    draggedNodeName = params.data.name;
+                    lastMouseX = params.event.event.clientX;
+                    lastMouseY = params.event.event.clientY;
+
+                    // 增加摩擦力，让拖动更顺滑
+                    myChart.setOption({
+                        series: [{
+                            force: {
+                                friction: 0.1,
+                                layoutAnimation: true
+                            }
+                        }]
+                    }, { notMerge: false });
+                }
+            });
+
+            myChart.on('mousemove', function (params) {
+                if (isNodeDragging && draggedNodeName) {
+                    const currentX = params.event.event.clientX;
+                    const currentY = params.event.event.clientY;
+
+                    const deltaX = currentX - lastMouseX;
+                    const deltaY = currentY - lastMouseY;
+
+                    velocityX = deltaX;
+                    velocityY = deltaY;
+
+                    lastMouseX = currentX;
+                    lastMouseY = currentY;
+
+                    applyNodeDragSway(velocityX, velocityY);
+                }
+            });
+
+            myChart.on('mouseup', function () {
+                if (isNodeDragging) {
+                    isNodeDragging = false;
+                    draggedNodeName = null;
+                    startSwayDecay();
+                }
+            });
+
+            // 画布拖动
+            chartDom.addEventListener('mousedown', function (e) {
+                if (e.button === 0 && e.target === chartDom) {
+                    isDragging = true;
+                    lastMouseX = e.clientX;
+                    lastMouseY = e.clientY;
+                    velocityX = 0;
+                    velocityY = 0;
+                }
+            });
+
+            document.addEventListener('mousemove', function (e) {
+                if (isDragging && !isNodeDragging) {
+                    const deltaX = e.clientX - lastMouseX;
+                    const deltaY = e.clientY - lastMouseY;
+
+                    velocityX = deltaX;
+                    velocityY = deltaY;
+
+                    lastMouseX = e.clientX;
+                    lastMouseY = e.clientY;
+
+                    applySwayEffect(velocityX, velocityY);
+                }
+            });
+
+            document.addEventListener('mouseup', function () {
+                if (isDragging) {
+                    isDragging = false;
+                    startSwayDecay();
+                }
+                if (isNodeDragging) {
+                    isNodeDragging = false;
+                    draggedNodeName = null;
+                    startSwayDecay();
+                }
+            });
+
+            function applyNodeDragSway(vx, vy) {
+                const speed = Math.sqrt(vx * vx + vy * vy);
+                const swayIntensity = Math.min(speed * 1.5, 200);
+
+                // 拖动节点时产生适度的波动效果
+                const newRepulsion = baseRepulsion + swayIntensity * 1.5;
+                const newGravity = Math.max(0.05, baseGravity - swayIntensity * 0.0008);
+
+                myChart.setOption({
+                    series: [{
+                        force: {
+                            repulsion: newRepulsion,
+                            gravity: newGravity,
+                            edgeLength: [85, 110],
+                            layoutAnimation: true,
+                            friction: 0.15
+                        }
+                    }]
+                }, { notMerge: false });
+            }
+
+            function applySwayEffect(vx, vy) {
+                const speed = Math.sqrt(vx * vx + vy * vy);
+                const swayIntensity = Math.min(speed * 2, 150);
+
+                // 动态调整斥力和重力，产生摆动
+                const newRepulsion = baseRepulsion + swayIntensity;
+                const newGravity = baseGravity - swayIntensity * 0.001;
+
+                myChart.setOption({
+                    series: [{
+                        force: {
+                            repulsion: newRepulsion,
+                            gravity: Math.max(0.05, newGravity),
+                            layoutAnimation: true,
+                            friction: 0.2
+                        }
+                    }]
+                }, { notMerge: false });
+            }
+
+            function startSwayDecay() {
+                let currentRepulsion = myChart.getOption().series[0].force.repulsion;
+                let currentGravity = myChart.getOption().series[0].force.gravity;
+
+                const decay = () => {
+                    // 逐渐恢复到基础值
+                    const repulsionDiff = currentRepulsion - baseRepulsion;
+                    const gravityDiff = currentGravity - baseGravity;
+
+                    if (Math.abs(repulsionDiff) > 1 || Math.abs(gravityDiff) > 0.001) {
+                        currentRepulsion -= repulsionDiff * 0.15;
+                        currentGravity -= gravityDiff * 0.15;
+
+                        myChart.setOption({
+                            series: [{
+                                force: {
+                                    repulsion: currentRepulsion,
+                                    gravity: currentGravity,
+                                    edgeLength: 90,
+                                    friction: 0.3
+                                }
+                            }]
+                        }, { notMerge: false });
+
+                        animationFrame = requestAnimationFrame(decay);
+                    } else {
+                        // 完全恢复
+                        myChart.setOption({
+                            series: [{
+                                force: {
+                                    repulsion: baseRepulsion,
+                                    gravity: baseGravity,
+                                    edgeLength: 90,
+                                    friction: 0.4
+                                }
+                            }]
+                        }, { notMerge: false });
+
+                        cancelAnimationFrame(animationFrame);
+                    }
+                };
+
+                animationFrame = requestAnimationFrame(decay);
+            }
+        }
+
+        function bindFocusEvent() {
+            myChart.off('click');
+
+            myChart.on('click', function (params) {
+                const currentOption = JSON.parse(JSON.stringify(myChart.getOption()));
+                const series = currentOption.series[0];
+                const nodes = series.data;
+                const links = series.links;
+
+                if (!params.componentType) {
+                    currentFocus = null;
+                    myChart.setOption(originalOption);
+                    return;
+                }
+
+                const isNodeClick = params.componentType === 'series' && params.seriesType === 'graph' && params.data;
+                if (isNodeClick) {
+                    const clickNodeName = params.data.name;
+
+                    if (clickNodeName === currentFocus) {
+                        currentFocus = null;
+                        myChart.setOption(originalOption);
+                        return;
+                    }
+
+                    currentFocus = clickNodeName;
+
+                    nodes.forEach(node => {
+                        const isFocus = node.name === currentFocus;
+                        const isRelated = links.some(link => {
+                            const linkSource = typeof link.source === 'object' ? link.source.name : link.source;
+                            const linkTarget = typeof link.target === 'object' ? link.target.name : link.target;
+                            return (linkSource === node.name && linkTarget === currentFocus) ||
+                                (linkTarget === node.name && linkSource === currentFocus);
+                        });
+
+                        if (isFocus) {
+                            // 聚焦节点使用更亮的同色系颜色，增强突出效果
+                            const baseColor = node.originalItemStyle.color;
+                            node.symbolSize = node.originalSymbolSize * 2.3;
+                            // 分组高亮色
+                            let groupColor = '#fff';
+                            if (node.name === '孙悟空') {
+                                groupColor = '#FFD700'; // 金色
+                            } else if (node.categoryName) {
+                                groupColor = groupColors[node.categoryName] || '#fff';
+                            } else if (typeof node.category === 'string') {
+                                groupColor = groupColors[node.category] || '#fff';
+                            }
+                            node.itemStyle = {
+                                color: baseColor === '#e53935' ? '#ff5252' :  // 神仙红→亮红
+                                    baseColor === '#ffb300' ? '#ffc02eff' :  // 妖怪黄→亮黄
+                                        baseColor === '#43a047' ? '#66bb6a' :  // 取经绿→亮绿
+                                            baseColor === '#1e88e5' ? '#64b5f6' : '#ffca28', // 其他蓝→亮蓝
+                                borderColor: groupColor,
+                                borderWidth: 3,
+                                shadowBlur: 20,
+                                shadowColor: node.originalItemStyle.shadowColor.replace('0.5', '0.8')
+                            };
+                            node.label = {
+                                show: true,
+                                fontSize: 21,
+                                color: '#fff',
+                                fontFamily: '"楷体", "KaiTi", serif',
+                                fontWeight: 'bold',
+                                textShadow: '0 0 5px rgba(0,0,0,0.7)'
+                            };
+                        } else if (isRelated) {
+                            node.symbolSize = node.originalSymbolSize * 1.6;
+                            // 分组高亮色
+                            let groupColor = '#fff';
+                            if (node.name === '孙悟空') {
+                                groupColor = '#FFD700'; // 金色
+                            } else if (node.categoryName) {
+                                groupColor = groupColors[node.categoryName] || '#fff';
+                            } else if (typeof node.category === 'string') {
+                                groupColor = groupColors[node.category] || '#fff';
+                            }
+                            node.itemStyle = {
+                                color: node.originalItemStyle.color,
+                                opacity: 0.95,
+                                borderWidth: 2,
+                                borderColor: groupColor,
+                                shadowBlur: 10,
+                                shadowColor: node.originalItemStyle.shadowColor
+                            };
+                            node.label = {
+                                show: true,
+                                fontSize: 15,
+                                color: '#fff',
+                                fontFamily: '"楷体", "KaiTi", serif',
+                                fontWeight: '600',
+                                textShadow: '0 0 3px rgba(0,0,0,0.5)'
+                            };
+                        } else {
+                            node.symbolSize = node.originalSymbolSize * 0.4;
+                            node.itemStyle = { opacity: 0.2 };
+                            node.label = { show: false };
+                        }
+                    });
+
+                    links.forEach(link => {
+                        const linkSource = typeof link.source === 'object' ? link.source.name : link.source;
+                        const linkTarget = typeof link.target === 'object' ? link.target.name : link.target;
+                        const isRelatedLink = linkSource === currentFocus || linkTarget === currentFocus;
+
+                        if (isRelatedLink) {
+                            link.lineStyle = {
+                                width: 7,
+                                color: '#ffc107',
+                                opacity: 1,
+                                curveness: 0.1,
+                                shadowBlur: 8,
+                                shadowColor: 'rgba(255, 193, 7, 0.6)'
+                            };
+                        } else {
+                            link.lineStyle = {
+                                width: 1,
+                                opacity: 0.1,
+                                curveness: 0.1
+                            };
+                        }
+                    });
+
+                    series.force = {
+                        repulsion: 400,
+                        gravity: 0.3,
+                        edgeLength: 75,
+                        animationDuration: 1600,
+                        animationEasingUpdate: 'quinticInOut'
+                    };
+
+                    myChart.setOption(currentOption);
+                }
+            });
+        }
+
+
+        // 关系类型筛选和分组过滤叠加：只显示当前分组下被选中关系类型的节点和边
+        document.getElementById('filterBtn').addEventListener('click', function () {
+            // 记录本次关系筛选结果
+            lastRelationFilter = getRelationFilterResult();
+            // 直接调用分组过滤（会自动叠加关系筛选结果）
+            applyGroupFilter();
+        });
+
+        // 初始化时也要设置lastRelationFilter为全选
+        lastRelationFilter = getRelationFilterResult();
+
+        // 全选/取消全选功能
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const relationCheckboxes = document.querySelectorAll('.relation-checkbox');
+
+        selectAllCheckbox.addEventListener('change', function() {
+            relationCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+        });
+
+        // 监听单个复选框变化，更新全选状态
+        relationCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = Array.from(relationCheckboxes).every(cb => cb.checked);
+                const anyChecked = Array.from(relationCheckboxes).some(cb => cb.checked);
+                
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+            });
+        });
+
+        window.addEventListener('resize', function () {
+            myChart.resize();
+        });
+
+        // 背景音乐控制
+        const bgMusic = document.getElementById('bgMusic');
+        const musicControl = document.getElementById('musicControl');
+        const musicIcon = document.getElementById('musicIcon');
+        let isMuted = false;
+        let fadeInterval = null;
+        
+        // 音频可视化设置
+        let audioContext = null;
+        let analyser = null;
+        let dataArray = null;
+        let audioSource = null;
+        let isAudioInitialized = false;
+        let visualizationActive = false;
+        let visualizationFrameId = null;
+        
+        // 历史峰值跟踪用于平滑和突出低音
+        let bassHistory = [];
+        let maxHistoryLength = 10;
+        let lastPeakTime = 0;
+        let peakDecay = 0;
+
+        // 初始化音频分析器
+        function initAudioAnalyser() {
+            if (isAudioInitialized) return;
+            
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                
+                // 优化配置以更好地捕捉低音
+                analyser.fftSize = 512; // 增加FFT大小获取更精细的低频
+                analyser.smoothingTimeConstant = 0.6; // 降低平滑让响应更快 (0-1, 越小响应越快)
+                analyser.minDecibels = -85; // 降低最小分贝增强动态范围
+                analyser.maxDecibels = -25; // 调整最大分贝
+                
+                audioSource = audioContext.createMediaElementSource(bgMusic);
+                audioSource.connect(analyser);
+                analyser.connect(audioContext.destination);
+                
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                isAudioInitialized = true;
+                startAudioVisualization();
+            } catch (e) {
+                console.error('音频分析器初始化失败:', e);
+            }
+        }
+
+        // 音频可视化循环
+        function startAudioVisualization() {
+            if (visualizationActive) return; // 如果已经在运行，不重复启动
+            
+            visualizationActive = true;
+            
+            // 禁用CSS动画，让JavaScript接管控制
+            const container = document.getElementById('container');
+            const filterPanel = document.querySelector('.filter-panel');
+            container.style.animation = 'xiyoujiGradient 18s ease infinite alternate';
+            filterPanel.style.animation = 'none';
+            musicControl.style.animation = 'none';
+            
+            function visualize() {
+                if (!analyser || !dataArray || !visualizationActive) return;
+                visualizationFrameId = requestAnimationFrame(visualize);
+                analyser.getByteFrequencyData(dataArray);
+
+                // --- 节奏律动检测算法 ---
+                // 1. 取低频能量（前20个bin）
+                const bassRange = 20;
+                const bassArr = dataArray.slice(0, bassRange);
+                const bassAvg = bassArr.reduce((a, b) => a + b, 0) / bassRange;
+                const bassNorm = bassAvg / 255;
+
+                // 2. 节奏脉冲检测（检测峰值并产生脉冲）
+                if (!window._beatPulse) {
+                    window._beatPulse = 0;
+                    window._beatLast = 0;
+                    window._beatDecay = 0.55; // 衰减系数
+                    window._beatThreshold = 0.48; // 峰值阈值（可调）
+                    window._beatHold = 5; // ms内只触发一次
+                }
+                const now = performance.now();
+                // 峰值检测：当前值高于阈值且高于前一帧
+                if (
+                    bassNorm > window._beatThreshold &&
+                    bassNorm > window._beatLast &&
+                    now - (window._beatLastTime || 0) > window._beatHold
+                ) {
+                    window._beatPulse = 1.0; // 触发脉冲
+                    window._beatLastTime = now;
+                } else {
+                    window._beatPulse *= window._beatDecay; // 衰减
+                }
+                window._beatLast = bassNorm;
+
+                // 3. 用脉冲驱动律动scale/强度
+                // 视觉律动强度 = 脉冲 + 平滑低频能量
+                const beatVisual = Math.min(window._beatPulse * 1.2 + bassNorm * 0.7, 1.0);
+
+                // 4. 计算中频和整体强度（用于色彩）
+                const midStart = 20, midEnd = 80;
+                const midArr = dataArray.slice(midStart, midEnd);
+                const midAvg = midArr.reduce((a, b) => a + b, 0) / (midEnd - midStart);
+                const midNorm = midAvg / 255;
+                let sum = 0;
+                for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+                const intensity = sum / dataArray.length / 255;
+
+                // 5. 应用到光晕律动
+                updateGlowEffects(intensity, beatVisual, midNorm);
+            }
+            visualize();
+        }
+
+        // 停止音频可视化
+        function stopAudioVisualization() {
+            visualizationActive = false;
+            if (visualizationFrameId) {
+                cancelAnimationFrame(visualizationFrameId);
+                visualizationFrameId = null;
+            }
+        }
+
+        // 更新光晕效果
+        function updateGlowEffects(intensity, bassIntensity, midIntensity) {
+            if (!visualizationActive) return;
+            // ...原有音频响应代码...
+            // === 孙悟空节点音频律动融合 ===
+            try {
+                if (window.myChart && window.myChart.getOption) {
+                    const option = window.myChart.getOption();
+                    if (option && option.series && option.series[0] && option.series[0].data) {
+                        let changed = false;
+                        option.series[0].data.forEach(node => {
+                            if (node.name === '孙悟空') {
+                                // 保持原有金色风格，仅融合律动算法
+                                const baseSize = node.originalSymbolSize || 25;
+                                const baseBlur = (node.originalItemStyle && node.originalItemStyle.shadowBlur) ? node.originalItemStyle.shadowBlur : 15;
+                                const baseShadow = (node.originalItemStyle && node.originalItemStyle.shadowColor) ? node.originalItemStyle.shadowColor : 'rgba(212, 160, 23, 0.8)';
+                                const baseBorder = (node.originalItemStyle && node.originalItemStyle.borderColor) ? node.originalItemStyle.borderColor : '#ffb300';
+                                // 融合律动：scale、shadowBlur、shadowColor透明度、borderColor亮度
+                                const scale = 1 + bassIntensity * 0.45 + intensity * 0.18;
+                                node.symbolSize = baseSize * scale;
+                                // shadowBlur随低频增强
+                                node.itemStyle = node.itemStyle || {};
+                                node.itemStyle.shadowBlur = baseBlur + Math.round(bassIntensity * 30 + intensity * 10);
+                                // shadowColor透明度增强
+                                let rgba = baseShadow.match(/rgba?\(([^)]+)\)/);
+                                if (rgba) {
+                                    let parts = rgba[1].split(',').map(s => s.trim());
+                                    if (parts.length === 4) {
+                                        parts[3] = Math.min(1, 0.7 + bassIntensity * 0.5 + intensity * 0.2).toFixed(2);
+                                        node.itemStyle.shadowColor = `rgba(${parts.join(',')})`;
+                                    }
+                                }
+                                // borderColor亮度增强
+                                node.itemStyle.borderColor = baseBorder;
+                                changed = true;
+                            }
+                        });
+                        if (changed) {
+                            window.myChart.setOption({ series: [{ data: option.series[0].data }] }, false);
+                        }
+                    }
+                }
+            } catch (e) { /* 忽略异常 */ }
+            // ...原有音频响应代码...
+            // === 保持原有全局光晕响应 ===
+            // 增强低频效果 - 使用平方函数让低音更冲击
+            const bassBoost = Math.pow(bassIntensity, 0.7); // 更敏感的响应
+            const midBoost = Math.pow(midIntensity, 0.8);
+            const intensityBoost = Math.pow(intensity, 0.75);
+            // 动态颜色 - 低音时偏红色，中高音时偏黄色
+            const bassHue = 10 + bassBoost * 20; // 红橙色范围 10-30
+            const midHue = 35 + midBoost * 15; // 橙黄色范围 35-50
+            const mainHue = 25 + intensityBoost * 20; // 主色调范围 25-45
+            // 饱和度随强度变化
+            const bassSat = 80 + bassBoost * 20; // 80-100%
+            const midSat = 75 + midBoost * 20; // 75-95%
+            const mainSat = 70 + intensityBoost * 25; // 70-95%
+            // 亮度随强度变化
+            const bassLight = 45 + bassBoost * 25; // 45-70%
+            const midLight = 50 + midBoost * 20; // 50-70%
+            const mainLight = 50 + intensityBoost * 20; // 50-70%
+            // 容器边框光晕 - 跟随低频，增大范围和强度
+            const containerGlow = 20 + bassBoost * 80;
+            const containerInner = 10 + bassBoost * 50;
+            const containerBlur = 5 + bassBoost * 15;
+            container.style.boxShadow = `
+                0 0 ${containerGlow}px hsla(${bassHue}, ${bassSat}%, ${bassLight}%, ${0.3 + bassBoost * 0.5}),
+                inset 0 0 ${containerInner}px hsla(${bassHue + 10}, ${bassSat - 10}%, ${bassLight + 10}%, ${0.2 + bassBoost * 0.4}),
+                0 0 ${containerBlur}px hsla(${bassHue - 5}, ${bassSat + 5}%, ${bassLight - 10}%, ${0.3 + bassBoost * 0.4}) inset,
+                0 ${bassBoost * 4}px ${containerGlow * 0.5}px hsla(${bassHue}, ${bassSat + 10}%, ${bassLight - 15}%, ${0.2 + bassBoost * 0.3})
+            `;
+            // 边框颜色动态变化（不改变宽度避免抖动）
+            container.style.borderColor = `hsla(${bassHue}, ${bassSat}%, ${bassLight}%, ${0.7 + bassBoost * 0.3})`;
+            // 筛选面板光晕 - 跟随中频，也加入低音震动
+            const filterPanel = document.querySelector('.filter-panel');
+            const panelGlow = 20 + midBoost * 60 + bassBoost * 20;
+            const panelInner = 10 + midBoost * 40;
+            filterPanel.style.boxShadow = `
+                0 0 ${panelGlow}px hsla(${midHue}, ${midSat}%, ${midLight}%, ${0.3 + midBoost * 0.4}),
+                inset 0 0 ${panelInner}px hsla(${midHue + 10}, ${midSat - 5}%, ${midLight + 10}%, ${0.2 + midBoost * 0.3}),
+                0 0 ${10 + bassBoost * 15}px hsla(${bassHue}, ${bassSat}%, ${bassLight - 5}%, ${0.25 + bassBoost * 0.35}) inset
+            `;
+            // 面板边框颜色（不改变宽度）
+            filterPanel.style.borderColor = `hsla(${midHue}, ${midSat}%, ${midLight}%, ${0.6 + midBoost * 0.3})`;
+            // 音乐按钮光晕 - 跟随整体强度，强化冲击感
+            const musicGlow = 8 + intensityBoost * 25 + bassBoost * 15;
+            musicControl.style.boxShadow = `
+                0 ${4 + intensityBoost * 12}px ${15 + intensityBoost * 25}px hsla(${mainHue}, ${mainSat}%, ${mainLight}%, ${0.5 + intensityBoost * 0.4}),
+                inset 0 0 ${15 + intensityBoost * 20}px hsla(${mainHue + 15}, ${mainSat - 10}%, ${mainLight + 15}%, ${0.3 + intensityBoost * 0.3}),
+                0 0 ${20 + bassBoost * 30}px hsla(${bassHue}, ${bassSat + 10}%, ${bassLight - 10}%, ${0.4 + bassBoost * 0.4})
+            `;
+            // 按钮背景色也随音频变化
+            musicControl.style.background = `linear-gradient(135deg, 
+                hsla(${mainHue}, ${mainSat - 20}%, ${mainLight - 20}%, 0.85), 
+                hsla(${mainHue + 10}, ${mainSat - 15}%, ${mainLight - 15}%, 0.9)
+            )`;
+            // 低音时按钮轻微放大
+            const buttonScale = 1 + bassBoost * 0.08;
+            musicControl.style.transform = `scale(${buttonScale})`;
+            // 筛选按钮光晕 - 增强响应
+            const filterBtn = document.getElementById('filterBtn');
+            filterBtn.style.boxShadow = `
+                0 2px ${8 + intensityBoost * 15}px hsla(${mainHue}, ${mainSat}%, ${mainLight}%, ${0.3 + intensityBoost * 0.4}),
+                0 0 ${10 + bassBoost * 20}px hsla(${bassHue}, ${bassSat}%, ${bassLight - 5}%, ${0.2 + bassBoost * 0.3})
+            `;
+            filterBtn.style.background = `linear-gradient(135deg, 
+                hsla(${mainHue - 5}, ${mainSat - 25}%, ${mainLight - 25}%, 0.85), 
+                hsla(${mainHue + 5}, ${mainSat - 20}%, ${mainLight - 20}%, 0.9)
+            )`;
+        }
+
+        // 淡入效果函数
+        function fadeIn(audio, duration = 3000) {
+            audio.volume = 0;
+            const steps = 50;
+            const increment = 1 / steps;
+            const stepTime = duration / steps;
+            let currentStep = 0;
+
+            if (fadeInterval) clearInterval(fadeInterval);
+            
+            fadeInterval = setInterval(() => {
+                currentStep++;
+                audio.volume = Math.min(currentStep * increment, 1);
+                
+                if (currentStep >= steps) {
+                    clearInterval(fadeInterval);
+                    fadeInterval = null;
+                }
+            }, stepTime);
+        }
+
+        // 淡出效果函数
+        function fadeOut(audio, duration = 1000) {
+            const steps = 20;
+            const decrement = audio.volume / steps;
+            const stepTime = duration / steps;
+            let currentStep = 0;
+
+            if (fadeInterval) clearInterval(fadeInterval);
+            
+            fadeInterval = setInterval(() => {
+                currentStep++;
+                audio.volume = Math.max(audio.volume - decrement, 0);
+                
+                if (currentStep >= steps) {
+                    clearInterval(fadeInterval);
+                    fadeInterval = null;
+                    audio.pause();
+                }
+            }, stepTime);
+        }
+
+        // 尝试自动播放
+        function tryAutoPlay() {
+            bgMusic.play().then(() => {
+                fadeIn(bgMusic, 3000);
+                initAudioAnalyser();
+            }).catch(error => {
+                console.log('自动播放被浏览器阻止，需要用户交互');
+                // 如果自动播放失败，等待用户首次点击页面
+                document.body.addEventListener('click', function playOnce() {
+                    bgMusic.play().then(() => {
+                        fadeIn(bgMusic, 3000);
+                        initAudioAnalyser();
+                    });
+                    document.body.removeEventListener('click', playOnce);
+                }, { once: true });
+            });
+        }
+
+        // 页面加载后尝试播放
+        window.addEventListener('load', tryAutoPlay);
+
+        // 音乐控制按钮点击事件
+        musicControl.addEventListener('click', function() {
+            isMuted = !isMuted;
+            
+            if (isMuted) {
+                fadeOut(bgMusic, 1000);
+                musicControl.classList.add('muted');
+                musicIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+                
+                // 停止音频可视化并恢复默认样式
+                stopAudioVisualization();
+                resetGlowEffects();
+            } else {
+                bgMusic.play().then(() => {
+                    fadeIn(bgMusic, 1500);
+                    if (!isAudioInitialized) {
+                        initAudioAnalyser();
+                    } else {
+                        // 如果已初始化，直接重新启动可视化
+                        startAudioVisualization();
+                    }
+                });
+                musicControl.classList.remove('muted');
+                musicIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+            }
+        });
+        
+        // 恢复默认光晕效果
+        function resetGlowEffects() {
+            const container = document.getElementById('container');
+            const filterPanel = document.querySelector('.filter-panel');
+            
+            // 清除内联样式，恢复CSS动画
+            container.style.boxShadow = '';
+            container.style.animation = '';
+            filterPanel.style.boxShadow = '';
+            filterPanel.style.animation = '';
+            musicControl.style.boxShadow = '';
+            musicControl.style.animation = '';
+            document.getElementById('filterBtn').style.boxShadow = '';
+        }
+
+        // 透明度滑块控制
+        const opacitySlider = document.getElementById('opacitySlider');
+        const opacityValue = document.getElementById('opacityValue');
+        const container = document.getElementById('container');
+
+        // 彩蛋：背景切换为视频（需滑块为0且双击滑块或label）
+        let bgVideo = null;
+        let videoEasterEggReady = false;
+        opacitySlider.addEventListener('input', function() {
+            const value = this.value;
+            opacityValue.textContent = value + '%';
+            const opacity = value / 100;
+            // 只在滑块为0时允许触发彩蛋
+            videoEasterEggReady = (value == '0');
+            if (!videoEasterEggReady && bgVideo) {
+                bgVideo.pause();
+                bgVideo.remove();
+                bgVideo = null;
+                document.body.style.backgroundImage = "url('https://picx.zhimg.com/v2-aff5897b8a4aa2bcc8b9d746c2a388f9_r.jpg?source=2c26e567')";
+            }
+            // 保持原有滤镜和动态效果
+            container.style.background = `linear-gradient(120deg, 
+                rgba(45, 27, 22, ${opacity * 0.85}), 
+                rgba(58, 34, 25, ${opacity * 0.85}), 
+                rgba(38, 22, 17, ${opacity * 0.85})
+            )`;
+        });
+
+        function triggerBgVideo() {
+            if (videoEasterEggReady && !bgVideo) {
+                bgVideo = document.createElement('video');
+                bgVideo.src = 'video.mp4';
+                bgVideo.autoplay = true;
+                bgVideo.loop = true;
+                bgVideo.muted = true;
+                bgVideo.playsInline = true;
+                bgVideo.style.position = 'fixed';
+                bgVideo.style.left = '0';
+                bgVideo.style.top = '0';
+                bgVideo.style.width = '100vw';
+                bgVideo.style.height = '100vh';
+                bgVideo.style.objectFit = 'cover';
+                bgVideo.style.zIndex = '-2';
+                bgVideo.style.pointerEvents = 'none';
+                document.body.appendChild(bgVideo);
+                document.body.style.backgroundImage = 'none';
+            }
+        }
+
+        opacitySlider.addEventListener('dblclick', triggerBgVideo);
+        // label也可触发
+        document.querySelector('.opacity-control label').addEventListener('dblclick', triggerBgVideo);
+
+        // 鼠标移动视差效果
+        let mouseX = 0;
+        let mouseY = 0;
+        let currentX = 50;
+        let currentY = 50;
+
+        document.addEventListener('mousemove', function(e) {
+            mouseX = (e.clientX / window.innerWidth) * 100;
+            mouseY = (e.clientY / window.innerHeight) * 100;
+        });
+
+        function updateParallax() {
+            // 平滑过渡到目标位置
+            currentX += (mouseX - currentX) * 0.08;
+            currentY += (mouseY - currentY) * 0.08;
+            
+            // 限制移动范围 - 增大偏移幅度
+            const rangeX = 8; // 水平偏移范围 ±8%
+            const rangeY = 8; // 垂直偏移范围 ±8%
+            const offsetX = ((currentX - 50) / 50) * rangeX;
+            const offsetY = ((currentY - 50) / 50) * rangeY;
+            
+            document.body.style.backgroundPosition = `${50 + offsetX}% ${50 + offsetY}%`;
+            
+            requestAnimationFrame(updateParallax);
+        }
+        
+        updateParallax();
+    </script>
+</body>
+
+</html>
