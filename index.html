@@ -782,7 +782,6 @@
                 var index = temp.indexOf(arr[i]);
                 if (index == -1) {
                     var cat = categoryMap[arr[i]] || '凡人';
-                    // 严格按照用户提供的分组颜色设置：凡人-蓝、取经团队-绿、妖怪-黄、神仙-红
                     let itemStyle = {};
                     if (cat === '神仙') {
                         itemStyle = {
@@ -1443,24 +1442,20 @@
             try {
                 audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 analyser = audioContext.createAnalyser();
-                
                 // 优化配置以更好地捕捉低音
                 analyser.fftSize = 512; // 增加FFT大小获取更精细的低频
                 analyser.smoothingTimeConstant = 0.6; // 降低平滑让响应更快 (0-1, 越小响应越快)
                 analyser.minDecibels = -85; // 降低最小分贝增强动态范围
                 analyser.maxDecibels = -25; // 调整最大分贝
-                
                 audioSource = audioContext.createMediaElementSource(bgMusic);
                 audioSource.connect(analyser);
                 analyser.connect(audioContext.destination);
-                
                 const bufferLength = analyser.frequencyBinCount;
                 dataArray = new Uint8Array(bufferLength);
-                
                 isAudioInitialized = true;
                 startAudioVisualization();
             } catch (e) {
-                console.error('音频分析器初始化失败:', e);
+                // 忽略音频分析器初始化异常
             }
         }
 
@@ -1698,7 +1693,6 @@
                 fadeIn(bgMusic, 3000);
                 initAudioAnalyser();
             }).catch(error => {
-                console.log('自动播放被浏览器阻止，需要用户交互');
                 // 如果自动播放失败，等待用户首次点击页面
                 document.body.addEventListener('click', function playOnce() {
                     bgMusic.play().then(() => {
